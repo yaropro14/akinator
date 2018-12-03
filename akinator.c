@@ -1,12 +1,16 @@
 #include <stdio.h>
+#include <ctype.h>
 
 
 int akinator();
 struct Node *  search(struct Node * tree);
 struct Node * create_person(struct Node * tree);
 
-struct Node * load_data(FILE * data_file);
+struct Node * load_data(FILE * data_file, struct Node * parent);
 int write_node(struct Node * tree, FILE * f_out);
+
+char * del_spase(char * args);
+char * del_new_line(char * str);
 
 
 #include "tree.h"
@@ -27,40 +31,23 @@ int akinator()
 	
 	char answer = 0;
 	
-	struct Node * akn_tree = NULL; //load_data(akn_data);
+	struct Node * akn_tree = load_data(akn_data, NULL);
 	
 	fclose(akn_data);
 	
-	while(1){
+	do {
 		
 		printf("For start pres 'y' and 'return'\n");
 		
-		answer = getchar();
+		scanf("%c", &answer);
 
-		if(answer == 'y') break;
+		if(answer != 'y') break;
 		
 		akn_tree = search(akn_tree);
 		
-	}
-	/*akn_tree = search(akn_tree);
+		scanf("%c", &answer);  //for eating "\n"
 		
-	print_tree_image(akn_tree);
-	
-	akn_tree = search(akn_tree);
-		
-	print_tree_image(akn_tree);
-	
-	akn_tree = search(akn_tree);
-		
-	print_tree_image(akn_tree);
-	
-	akn_tree = search(akn_tree);
-		
-	print_tree_image(akn_tree);
-	
-	akn_tree = search(akn_tree);
-	
-	*/
+	} while(1);
 	
 	akn_data = fopen("akn_data.txt", "w");
 	
@@ -124,7 +111,6 @@ struct Node * search(struct Node * akn_tree)
 	
 	else
 	{
-		printf("return");
 		return akn_tree;
 	}
 	
@@ -151,28 +137,76 @@ struct Node * create_person(struct Node * tree)
 }
 
 
-struct Node * load_data(FILE * data_file)
+struct Node * load_data(FILE * data_file, struct Node * parent)
 {
-	char str[SIZE_OF_STR] = "\0";
-		printf("1\n");
-	static int indent = 0; indent ++;
-		printf("1\n");
-	fscanf(data_file, "%s", str);
-		printf("1\n");
-	printf("%s\n", str);
-		printf("1\n");
-	return NULL;
+	char * buf = (char *) calloc(SIZE_OF_STR, sizeof(char));
+	
+	fscanf(data_file, "%s", buf);
+	
+	if(strcmp(buf, "{") != 0)	return NULL;
+	if(strcmp(buf, "{}") == 0)	return NULL;
+	
+	fscanf(data_file, "%[^{}]", buf);
+	buf = del_spase(buf);
+	buf = del_new_line(buf);
+
+	struct Node * new = NULL;
+	
+	new =  tree_add(new, parent, buf);
+	
+	new->left = load_data(data_file, new);
+	new->right = load_data(data_file, new);
+	
+	fscanf(data_file, "%s", buf);
+	
+	if(strcmp(buf, "}") != 0)
+	{
+		printf("Error: cant read data\n");
+		return NULL;
+	}
+	
+	return new;
 }
 
 
 int write_node(struct Node * tree, FILE * f_out)
 {
 	static int indent = 0; indent ++;
+	
+	if(tree == NULL)
+	{
+		fprintf(f_out, "%*s\n", indent * 4, "{}");
+		indent --;
+		return 0;
+	}
+	
 	fprintf(f_out, "%*s{ ", indent * 4, " ");
 	fprintf(f_out,"%s\n", tree->val);
-	if(tree->left) write_node(tree->left, f_out);
-	if(tree->right) write_node(tree->right, f_out);
+	
+	write_node(tree->left, f_out);
+	write_node(tree->right, f_out);
+	
 	fprintf(f_out, "%*s}\n", indent * 4, " ");
+	
 	indent --;
+	
 	return 0;
 }
+
+
+char * del_spase(char * str)
+{
+	
+	while (isspace(*str)) str ++;
+	
+	return str;
+}
+
+
+char * del_new_line(char * str)
+{
+	char * p = strchr(str, '\n');
+	*p = '\0';
+	return str;
+}
+

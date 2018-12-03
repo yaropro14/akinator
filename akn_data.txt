@@ -1,0 +1,46 @@
+    { math
+        { smell
+            { Ivanova 
+              {}
+              {}
+            }
+            { Smart
+                { Lunina
+                  {}
+                  {}
+                }
+                { Markasheva
+                  {}
+                  {}
+                }
+            }
+        }
+        { Likes_pulms
+            { Jesus
+                { Ovchinkin
+                  {}
+                  {}
+                }
+                { Beach_style
+                    { Kvashnin
+                      {}
+                      {}
+                    }
+                    { Ipatoff
+                      {}
+                      {}
+                    }
+                }
+            }
+            { fat
+                { Popof
+                  {}
+                  {}
+                }
+                { Gavrikov
+                  {}
+                  {}
+                }
+            }
+        }
+    }
